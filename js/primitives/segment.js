@@ -15,6 +15,11 @@ class Segment{
     }
 
 
+    length(){
+        return distance(this.p1,this.p2);
+    }
+
+
     draw(ctx, {width = 2, color = "black", dash = [] } = {}){
         ctx.beginPath();
         ctx.lineWidth = width;
