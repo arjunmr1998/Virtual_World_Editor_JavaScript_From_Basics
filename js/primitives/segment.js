@@ -19,6 +19,10 @@ class Segment{
         return distance(this.p1,this.p2);
     }
 
+    directionVector(){
+        return normalize(subtract(this.p2,this.p1));
+    }
+
 
     draw(ctx, {width = 2, color = "black", dash = [] } = {}){
         ctx.beginPath();

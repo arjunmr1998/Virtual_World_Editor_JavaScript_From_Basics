@@ -71,7 +71,34 @@ class World{
             }
         }
 
-        return guides
+
+        const supports = [];
+        for(let seg of guides){
+            const len = seg.length() + this.spacing;
+            const buildingCount = Math.floor(
+                len / (this.buildingMinLength + this.spacing)
+            );
+
+            const buildingLength = len / buildingCount - this.spacing;
+
+
+            const dir = seg.directionVector();
+
+
+            let q1 = seg.p1;
+            let q2 = add(q1 , scale(dir ,buildingLength) );
+            supports.push(new Segment(q1,q2));
+
+
+            for(let i =2;i < buildingCount;i++){
+                q1 = add(q2, scale(dir,this.spacing));
+                q2 = add(q1, scale(dir,buildingLength));
+                supports.push(new Segment(q1,q2));
+            }
+
+        }
+
+        return supports
 
     }
 
