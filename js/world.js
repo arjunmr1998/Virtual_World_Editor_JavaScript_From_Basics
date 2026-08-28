@@ -106,9 +106,9 @@ class World{
         }
          
         for(let i=0;i<bases.length-1;i++){
-            for(let j=i+1;i<bases.length;j++){
+            for(let j=i+1;j<bases.length;j++){
                 if(bases[i].intersectsPoly(bases[j])){
-                    bases.splice(j);
+                    bases.splice(j, 1);
                     j--;
                 }
             }
