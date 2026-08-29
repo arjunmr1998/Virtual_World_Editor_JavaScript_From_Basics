@@ -42,6 +42,11 @@ function translate(loc,angle,offset){
 
 }
 
+function dot(p1,p2){
+    return p1.x*p2.x+p1.y*p2*y;
+
+}
+
 
 function angle(p){
     return Math.atan2(p.y , p.x );

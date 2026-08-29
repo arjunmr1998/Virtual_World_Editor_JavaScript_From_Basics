@@ -23,6 +23,11 @@ class Graph{
 
     }
 
+
+    hash(){
+        return JSON.stringify(this);
+    }
+
     addPoint(point){
        this.points.push(point);
     }

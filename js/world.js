@@ -4,7 +4,8 @@ class World{
         roadRoundness = 10,
         buildingWidth= 150,
         buildingMinLength = 150,
-        spacing = 50
+        spacing = 50,
+        treeSize = 160,
 
     ){
 
@@ -14,10 +15,12 @@ class World{
         this.buildingWidth = buildingWidth;
         this.buildingMinLength =  buildingMinLength;
         this.spacing = spacing;
+        this.treeSize = treeSize;
 
         this.envelopes= [];
         this.roadBorders= [];
         this.buildings = [];
+        this.trees=[];
 
         this.generate();
 
@@ -42,11 +45,100 @@ class World{
 
       this.roadBorders =  Polygon.union(this.envelopes.map((e)=>e.poly));
       this.buildings= this.#generateBuildings();
+      this.trees = this.#generateTrees();
 
 
 
 
     }
+
+    #generateTrees(){
+
+        const points = [
+            ...this.roadBorders.map((s)=> [s.p1,s.p2]).flat(),
+            ...this.buildings.map((b)=>b.points).flat()
+        ];
+
+        const left = Math.min(...points.map((p)=>p.x));
+        const right = Math.max(...points.map((p)=>p.x));
+        const top = Math.min(...points.map((p)=>p.y));
+        const bottom = Math.max(...points.map((p)=>p.y));
+
+
+        const illegalPolys = [
+            ...this.buildings,
+            ...this.envelopes.map((e)=> e.poly)
+        ];
+
+
+
+
+        const trees =[];
+
+        let tryCount =0;
+        while(tryCount < 100){
+            const p = new Point(
+                lerp(left,right,Math.random()),
+                lerp(bottom,top,Math.random())
+
+            );
+
+            let keep = true;
+
+            // Reject if inside a building or road
+            for (const poly of illegalPolys) {
+                if (poly.containsPoint(p) || poly.distanceToPoint(p) < this.treeSize/2) {
+                    keep = false;
+                    break;
+                }
+            }
+
+            // Reject if too close to another tree
+            if (keep) {
+                for (const tree of trees) {
+                    if (distance(tree, p) < this.treeSize) {
+                        keep = false;
+                        break;
+                    }
+                }
+            }
+
+
+            if(keep){
+                let closeToSomething = false;
+                for(const poly of illegalPolys){
+                    if(poly.distanceToPoint(p)   < this.treeSize*2){
+                        closeToSomething=true;
+                        break;
+
+
+                    }
+
+                }
+                keep = closeToSomething;
+
+            }
+
+
+            if(keep){
+                trees.push(p);
+                tryCount= 0;
+
+            }
+            tryCount++;
+
+        }
+        return trees;
+
+    }
+
+
+
+
+
+
+
+
     #generateBuildings(){
         const tmpEnvelopes = [];
         for(const seg of this.graph.segments){
@@ -104,10 +196,15 @@ class World{
 
 
         }
+        const eps =0.001; //Correcton for floating issue
          
         for(let i=0;i<bases.length-1;i++){
             for(let j=i+1;j<bases.length;j++){
-                if(bases[i].intersectsPoly(bases[j])){
+                if(bases[i].intersectsPoly(bases[j]) ||
+                   bases[i].distanceToPoly(bases[j]) < this.spacing -eps
+                
+                
+                ){
                     bases.splice(j, 1);
                     j--;
                 }
@@ -155,10 +252,20 @@ class World{
 
         }
 
+        for(const tree of this.trees){
+            tree.draw(ctx);
+
+        }
+
 
         for(const bld of this.buildings){
             bld.draw(ctx);
         }
+
+
+
+
+
 
     }
 
