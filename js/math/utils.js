@@ -113,3 +113,10 @@ function normalize(p){
 function magnitude(p){
     return  Math.hypot(p.x, p.y);
 }
+
+
+function lerp2D(A,B,t){
+
+    return new Point(lerp(A.x, B.x ,t) , lerp(A.y, B.y,t));
+
+}
