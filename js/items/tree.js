@@ -4,6 +4,7 @@ class Tree{
         this.center = center;
         this.size = size;
         this.heightCoef = heightCoef;
+        this.base= this.#generateLevel(center,size);
     }
 
 
@@ -46,6 +47,7 @@ class Tree{
 
 
        // new Segment(this.center,top).draw(ctx);
+       //this.base.draw(ctx);
 
 
     }
