@@ -20,6 +20,17 @@
             <button onclick="dispose()">🗑️</button>
             <button onclick="save()">💾</button>
 
+            &nbsp; <!-- stands for non-breaking space, which is a special code used in HTML Character Entities to create a space that will not break onto a new line -->
+
+            <button id = "graphBtn" onclick="setMode('graph')">🌐</button>
+            <button id = "stopBtn" onclick="setMode('stop')">🛑</button>
+
+
+
+
+
+
+
             
 
         </div>
@@ -152,6 +163,35 @@
 
             function save(){
                 localStorage.setItem("graph", JSON.stringify(graph));
+            }
+
+            function setMode(mode){
+                disableEditors();
+                switch (mode){
+                    case "graph":
+                        graphBtn.style.backgroundColor = "white";
+                        graphBtn.style.filter = "";
+                        break;
+                    case "stop":
+                        stopBtn.style.backgroundColor = "white";
+                        stopBtn.style.filter = "";
+                        break;
+
+
+
+                }
+
+
+
+
+
+            }
+
+            function disableEditors(){
+                graphBtn.style.backgroundColor = "gray";
+                graphBtn.style.filter = "grayscale(100%)";
+                stopBtn.style.backgroundColor = "gray";
+                stopBtn.style.filter = "grayscale(100%)";
             }
 
         </script>
