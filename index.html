@@ -133,6 +133,8 @@
             //graph.draw(ctx);
             let oldGraphHash = graph.hash();
 
+            setMode("graph");
+
             animate();
 
             function animate(){
@@ -171,10 +173,17 @@
                     case "graph":
                         graphBtn.style.backgroundColor = "white";
                         graphBtn.style.filter = "";
+
+
                         break;
                     case "stop":
                         stopBtn.style.backgroundColor = "white";
                         stopBtn.style.filter = "";
+
+
+
+
+                        
                         break;
 
 
