@@ -173,6 +173,7 @@
                     case "graph":
                         graphBtn.style.backgroundColor = "white";
                         graphBtn.style.filter = "";
+                        graphEditor.enable();
 
 
                         break;
@@ -183,7 +184,7 @@
 
 
 
-                        
+
                         break;
 
 
@@ -199,6 +200,7 @@
             function disableEditors(){
                 graphBtn.style.backgroundColor = "gray";
                 graphBtn.style.filter = "grayscale(100%)";
+                graphEditor.disable();
                 stopBtn.style.backgroundColor = "gray";
                 stopBtn.style.filter = "grayscale(100%)";
             }
