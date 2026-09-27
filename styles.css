@@ -1,7 +1,6 @@
 body {
-    background-color: black;
-    text-align: center;
-    
+   background-color: black;
+   text-align: center;
 }
 
 h1 {
@@ -10,16 +9,20 @@ h1 {
 }
 
 #myCanvas {
-    background-color: green;
+   background-color: #2a5;
 }
 
-button{
+button, .file-input-label {
+   display: inline-block;
+   background-color: white;
+   font-size: 20px;
+   padding: 5px 7px 7px 5px;
+   border: none;
+   border-radius: 5px;
+   text-shadow: 1px 1px black;
+   cursor: pointer;
+}
 
-    background-color: white;
-    font-size: 20px;
-    padding: 5px 7px 7px 5px;
-    border: none;
-    border-radius: 5px;
-    text-shadow: 1px 1px black;
-    cursor: pointer;
+input[type="file"] {
+   display: none;
 }
