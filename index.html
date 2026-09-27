@@ -29,7 +29,7 @@
 
 
 
-
+           <button id="startBtn" onclick="setMode('start')">🚙</button>
 
 
 
@@ -43,14 +43,19 @@
         
 
         <script src="js/viewport.js"></script>
+        <script src="js/markings/marking.js"></script>
+
         <script src="js/markings/stop.js"></script>
+        <script src="js/markings/start.js"></script>
         <script src="js/markings/crossing.js"></script>
 
 
-
+        <script src="js/editors/markingEditor.js"></script>
+        
         <script src="js/editors/graphEditor.js"></script>
         <script src="js/editors/crossingEditor.js"></script>
         <script src="js/editors/stopEditor.js"></script>
+        <script src="js/editors/startEditor.js"></script>
 
 
 
@@ -144,9 +149,16 @@
             const world = new World(graph);
             const viewport = new Viewport(myCanvas);
 
-            const graphEditor = new GraphEditor(viewport , graph);
-            const stopEditor = new StopEditor(viewport , world);
-            const crossingEditor = new CrossingEditor(viewport , world);
+            const tools = {
+            graph: { button: graphBtn, editor: new GraphEditor(viewport, graph) },
+            stop: { button: stopBtn, editor: new StopEditor(viewport, world) },
+            crossing: { button: crossingBtn, editor: new CrossingEditor(viewport, world) },
+            start: { button: startBtn, editor: new StartEditor(viewport, world) },
+
+
+
+
+         };
 
 
 
@@ -171,9 +183,13 @@
 
                 world.draw(ctx, viewPoint);
                 ctx.globalAlpha = 0.3;
-                graphEditor.display();
-                stopEditor.display();
-                crossingEditor.display();
+                // graphEditor.display();
+                // stopEditor.display();
+                // crossingEditor.display();
+
+               for (const tool of Object.values(tools)) {
+               tool.editor.display();
+               }
 
 
 
@@ -184,8 +200,22 @@
 
             }
             function dispose(){
-                graphEditor.dispose();
-                world.markings.length =0;
+
+
+                    // Disable whichever editor is currently active
+                dissableEditors();
+
+                // Clear the graph (roads, points, segments)
+                tools.graph.editor.dispose();
+
+                // Clear markings only if they exist
+                if (world.markings) {
+                    world.markings.length = 0;
+                }
+
+                // Regenerate the world after clearing the graph
+                world.generate();
+               
             }
 
             function save(){
@@ -193,46 +223,19 @@
             }
 
             function setMode(mode){
-                disableEditors();
-                switch (mode){
-                    case "graph":
-                        graphBtn.style.backgroundColor = "white";
-                        graphBtn.style.filter = "";
-                        graphEditor.enable();
-                        break;
-                    case "stop":
-                        stopBtn.style.backgroundColor = "white";
-                        stopBtn.style.filter = "";
-                        stopEditor.enable();
-                        break;
-                    case "crossing":
-                        crossingBtn.style.backgroundColor = "white";
-                        crossingBtn.style.filter = "";
-                        crossingEditor.enable();
-                        break;
-
-
-
-                }
-
-
-
-
+                dissableEditors();
+                tools[mode].button.style.backgroundColor = "white";
+                tools[mode].button.style.filter = "";
+                tools[mode].editor.enable();
 
             }
 
-            function disableEditors(){
-                graphBtn.style.backgroundColor = "gray";
-                graphBtn.style.filter = "grayscale(100%)";
-                graphEditor.disable();
-                stopBtn.style.backgroundColor = "gray";
-                stopBtn.style.filter = "grayscale(100%)";
-                stopEditor.disable();
-
-
-                crossingBtn.style.backgroundColor = "gray";
-                crossingBtn.style.filter = "grayscale(100%)";
-                crossingEditor.disable();
+            function dissableEditors(){
+                for (const tool of Object.values(tools)) {
+               tool.button.style.backgroundColor = "gray";
+               tool.button.style.filter = "grayscale(100%)";
+               tool.editor.disable();
+              }
 
             }
 
