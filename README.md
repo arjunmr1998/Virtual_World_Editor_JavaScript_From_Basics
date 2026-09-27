@@ -4,7 +4,7 @@
 
 ## 🎥 Demo
 
-[![Watch Demo](demo_thumbnail.png)](Virtual_World_with_markings.mp4)
+[![Watch Demo](car.png)](Virtual_World_with_markings.mp4)
 
 *Click the image to play the full demo.*
 
@@ -36,10 +36,10 @@ The editor allows users to create an interactive virtual world consisting of:
 
 | Feature | Preview |
 |---------|---------|
-| World Editing | *(Add GIF)* |
-| Traffic Lights | *(Add GIF)* |
-| Save & Load | *(Add GIF)* |
-| Camera Controls | *(Add GIF)* |
+| 🌍 World Editing | <img src="Virtual_World_with_marking_gif.gif" width="380"> |
+| 🚦 Traffic Lights | <img src="traffic_light.gif" width="380"> |
+| 💾 Save & Load | Included in the World Editing demo |
+| 🎥 Camera Controls | Included in the World Editing demo |
 
 ---
 
