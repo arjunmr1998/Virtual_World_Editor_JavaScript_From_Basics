@@ -1,78 +1,186 @@
-# 🌍 World Editor – No Library Self Driving Car (Learning Notes)
+#  Virtual World Editor in Vanilla JavaScript
 
-This project is part of my journey toward Robotics, Autonomous Vehicles, and AI. Instead of using game engines like Unity or Three.js, everything is built from scratch using **HTML Canvas** and **Vanilla JavaScript**.
+> Building a complete 2D world editor from scratch using **HTML5 Canvas** and **Vanilla JavaScript**  no game engine, no rendering libraries.
 
-At this stage, the project implements a **World Editor**, where roads are represented as mathematical graphs and converted into a navigable world.
+<video src="Virtual_World_with_markings.mp4" controls width="800">
+  Your browser does not support the video tag.
+</video>
 
 ---
 
-# Project Workflow
+## Project Overview
 
-The execution flow looks like this.
+This project is part of my journey toward **Robotics, Autonomous Vehicles, Reinforcement Learning, and Simulation**.
 
-```
-Browser
-   │
-   ▼
+Instead of relying on Unity, Three.js, or Phaser, I wanted to understand how simulation software actually works underneath. Every road, building, tree, traffic light, camera movement, and editor tool is implemented mathematically from first principles.
+
+The editor allows users to create an interactive virtual world consisting of:
+
+- 🛣️ Road networks
+- 🚦 Traffic lights
+- 🛑 Stop signs
+- ⚠️ Yield signs
+- 🚶 Crosswalks
+- 🅿️ Parking areas
+- 🚙 Vehicle start positions
+- 🎯 Target destinations
+- 🌳 Procedurally generated trees
+- 🏠 Automatically generated buildings
+
+
+---
+
+# Demo
+
+| Feature | Preview |
+|---------|---------|
+| World Editing | *(Add GIF)* |
+| Traffic Lights | *(Add GIF)* |
+| Save & Load | *(Add GIF)* |
+| Camera Controls | *(Add GIF)* |
+
+---
+
+# Features
+
+| Feature | Description |
+|----------|-------------|
+| 🌐 Graph Editor | Create roads interactively |
+| 🛣️ Road Generation | Convert centerlines into full roads |
+| 🌳 Tree Generation | Procedural vegetation placement |
+| 🏠 Building Generation | Automatic roadside buildings |
+| 🚦 Traffic Lights | Dynamic intersection signals |
+| 🛑 Stop Signs | Road markings |
+| 🚶 Crosswalks | Pedestrian crossings |
+| 🅿️ Parking | Parking zones |
+| 🚙 Start Position | Spawn point for future AI cars |
+| 🎯 Target | Destination marker |
+| 💾 Save | Export complete world as `.world` |
+| 📁 Load | Reload saved worlds |
+| 🎥 60 FPS Rendering | Smooth real-time editing |
+
+---
+
+# Project Architecture
+
+The project follows a modular architecture similar to robotics software, where every subsystem has a single responsibility.
+
+```text
 index.html
-   │
-   ▼
+      │
+      ▼
 Canvas (600×600)
-   │
-   ▼
+      │
+      ▼
 Viewport (Camera)
-   │
-   ▼
-Graph Editor (Mouse Interaction)
-   │
-   ▼
-Graph (Road Network)
-   │
-   ▼
-World (Road Generation)
-   │
-   ▼
+      │
+      ▼
+Editor System
+ ├── Graph Editor
+ ├── Stop Editor
+ ├── Light Editor
+ ├── Parking Editor
+ ├── Crossing Editor
+ ├── Start Editor
+ ├── Target Editor
+ └── Yield Editor
+      │
+      ▼
+Graph
+      │
+      ▼
+World Generator
+      │
+      ▼
+Geometry Engine
+      │
+      ▼
 Render Loop (60 FPS)
 ```
 
-The browser continuously redraws the world while allowing the user to create and edit roads interactively.
+Every module is independent, making it easy to extend the project with new editor tools and future AI systems.
 
 ---
 
-# Project Structure
+# Folder Structure
 
-```
-project/
-│
+```text
+Virtual_World_Editor/
+
 ├── index.html
 ├── styles.css
 │
 ├── js/
 │   ├── world.js
-│   ├── graphEditor.js
 │   ├── viewport.js
+│
 │   ├── math/
-│   │    ├── graph.js
-│   │    └── utils.js
-│   │
+│   │   ├── graph.js
+│   │   └── utils.js
+│
 │   ├── primitives/
-│   │    ├── point.js
-│   │    ├── segment.js
-│   │    ├── polygon.js
-│   │    └── envelope.js
-│   │
+│   │   ├── point.js
+│   │   ├── segment.js
+│   │   ├── polygon.js
+│   │   └── envelope.js
+│
+│   ├── editors/
+│   │   ├── graphEditor.js
+│   │   ├── markingEditor.js
+│   │   ├── stopEditor.js
+│   │   ├── crossingEditor.js
+│   │   ├── parkingEditor.js
+│   │   ├── lightEditor.js
+│   │   ├── startEditor.js
+│   │   ├── targetEditor.js
+│   │   └── yieldEditor.js
+│
+│   ├── markings/
+│   │   ├── stop.js
+│   │   ├── crossing.js
+│   │   ├── parking.js
+│   │   ├── light.js
+│   │   ├── start.js
+│   │   ├── target.js
+│   │   └── yield.js
+│
 │   └── items/
-│        ├── building.js
-│        └── tree.js
+│       ├── building.js
+│       └── tree.js
 ```
-
-Each file has a single responsibility, similar to how robotics software separates localization, planning, perception, and control.
 
 ---
 
-# Step-by-Step Execution Flow
+# Complete Execution Flow
 
-## Step 1: Create the Canvas
+Every time the browser loads the project, the following sequence happens.
+
+```text
+Page Loads
+     │
+     ▼
+Load Saved World
+     │
+     ▼
+Initialize Viewport
+     │
+     ▼
+Create Editor Tools
+     │
+     ▼
+Start Animation Loop
+     │
+     ▼
+Render World (60 FPS)
+```
+
+The browser continuously redraws the world while responding to mouse interactions.
+
+---
+
+# Step-by-Step Code Flow
+
+## Step 1 – Canvas Creation
 
 ```javascript
 myCanvas.width = 600;
@@ -83,13 +191,13 @@ The canvas becomes the drawing surface.
 
 Coordinate system:
 
-```
+```text
 (0,0)
-  ●────────────► X
-  │
-  │
-  ▼
-  Y
+ ●────────► X
+ │
+ │
+ ▼
+ Y
 ```
 
 Unlike traditional mathematics:
@@ -99,7 +207,7 @@ Unlike traditional mathematics:
 
 ---
 
-## Step 2: Create Drawing Context
+## Step 2 – Create Drawing Context
 
 ```javascript
 const ctx = myCanvas.getContext("2d");
@@ -120,20 +228,20 @@ ctx.fill()
 
 ---
 
-## Step 3: Load Saved Graph
+## Step 3 – Load Saved World
+
+The project restores the previously saved world.
 
 ```javascript
-const graphString = localStorage.getItem("graph");
+const worldString = localStorage.getItem("world");
 ```
-
-The browser stores previously created roads.
 
 ### Serialization
 
 Objects cannot be stored directly.
 
-```
-Graph Object
+```text
+World Object
      │
 JSON.stringify()
      │
@@ -143,276 +251,413 @@ Text
 
 When loading:
 
-```
+```text
 Text
  │
 JSON.parse()
  │
  ▼
-Graph Object
+World Object
 ```
 
 This process is called **serialization**.
 
 ---
 
-## Step 4: Create Graph
+## Step 4 – Create Graph
 
-```javascript
-const graph =
-graphInfo ? Graph.load(graphInfo)
-          : new Graph();
-```
+The graph stores the mathematical representation of roads.
 
-This means:
-
-- if saved data exists → restore it
-- otherwise → create an empty graph
-
-Memory structure:
-
-```
+```text
 graph
+
 ├── points[]
 └── segments[]
 ```
 
+Every road is built from these two fundamental structures.
+
 ---
 
-## Step 5: Create World
-
-```javascript
-const world = new World(graph);
-```
+## Step 5 – Create World
 
 The graph only stores mathematical roads.
 
 Example:
 
-```
+```text
 A────────B
 ```
 
 The world transforms this into:
 
-- road width
-- lane boundaries
-- buildings
-- trees
+- Road width
+- Rounded corners
+- Lane guides
+- Buildings
+- Trees
 
 Conceptually:
 
-```
+```text
 Graph
 
-A──────B
+A────────B
 
 
 World
 
-🌳
+      🌳
+
 ██████████
 - - - - -
 ██████████
+
       🏠
 ```
 
----
-
-## Step 6: Create Viewport
-
-```javascript
-const viewport = new Viewport(myCanvas);
-```
-
-The viewport is the camera.
-
-Instead of moving every object, the camera moves.
-
-Real-world analogy:
-
-- Unity Camera
-- MuJoCo Camera
-- ROS visualization camera
+This transformation happens procedurally.
 
 ---
 
-## Step 7: Create Graph Editor
+## Step 6 – Viewport
 
-```javascript
-const graphEditor =
-new GraphEditor(viewport, graph);
-```
+The viewport behaves like a virtual camera.
 
-The editor receives:
+Instead of moving every object individually, the camera transforms the coordinate system.
 
-- viewport
-- graph
+This is the same concept used in:
 
-Responsibilities:
-
-- detect mouse clicks
-- create points
-- connect segments
-- delete elements
-
-Screen coordinates are converted into world coordinates.
+- OpenGL
+- MuJoCo
+- ROS visualization
+- Game engines
 
 ---
 
-## Step 8: Save Initial Graph State
+## Step 7 – Create Editor Tools
 
-```javascript
-let oldGraphHash = graph.hash();
-```
-
-A hash is a fingerprint of the graph.
+Each toolbar button creates its own editor.
 
 Example:
 
-```
-A──B──C
-```
-
-Hash:
-
-```
-483829
+```javascript
+new GraphEditor(viewport, graph)
 ```
 
-After adding a road:
+Every marking editor receives:
 
-```
-A──B──C──D
-```
+- viewport
+- world
 
-Hash changes.
-
-This allows efficient change detection.
+This shared architecture allows all tools to behave consistently.
 
 ---
 
-# The Animation Loop
+## Step 8 – Animation Loop
 
 The heart of the project.
-
-```javascript
-animate();
-```
-
-Inside:
 
 ```javascript
 requestAnimationFrame(animate);
 ```
 
-The browser calls this approximately:
+The browser automatically calls this approximately:
 
+```text
+60 FPS
 ```
-60 times / second
-```
-
-Frame time:
-
-<math value="\\frac{1}{60}=16.67\\text{ ms}"/>
 
 Each frame performs:
 
-```
-Reset camera
+```text
+Reset Camera
       │
-Check graph changes
+Check Graph Changes
       │
-Generate world if needed
+Generate World if Needed
       │
-Draw world
+Update Traffic Lights
       │
-Draw editor
+Draw Roads
       │
-Next frame
+Draw Buildings
+      │
+Draw Trees
+      │
+Draw Markings
+      │
+Draw Active Editor
 ```
 
-This is exactly how game engines work.
+This layered rendering pipeline is similar to how game engines work.
 
 ---
 
-# How `animate()` Works
+# World Generation
 
-## 1. Reset Viewport
+The `World` class is the procedural generation engine.
 
-```javascript
-viewport.reset();
+Input:
+
+```text
+Graph
 ```
 
-Transforms are cleared before drawing.
+Output:
 
-Without resetting:
-
-```
-Frame 1
-translate(10)
-
-Frame 2
-translate(10)
-
-Total = 20
+```text
+Roads
+Buildings
+Trees
+Lane Guides
+Road Borders
 ```
 
-Eventually everything would disappear.
-
-Reset prevents accumulated transformations.
+Instead of manually drawing roads, everything is generated mathematically.
 
 ---
 
-## 2. Detect Graph Changes
+# How Roads Become Real Roads
 
-```javascript
-if(graph.hash()!=oldGraphHash){
-    world.generate();
-}
+Every road begins as a simple centerline.
+
+```text
+A────────B
 ```
 
-Instead of regenerating roads every frame, regeneration only happens when the graph changes.
+The `Envelope` class expands it into a polygon.
 
-This is an optimization.
+```text
+Centerline
+
+──────────
+
+↓
+
+Road Polygon
+
+██████████
+```
+
+Rounded intersections are automatically generated.
+
+This is computational geometry rather than image-based drawing.
 
 ---
 
-## 3. Calculate Camera Position
+# Building Generation
 
-```javascript
-const viewPoint =
-scale(viewport.getOffset(), -1);
+Buildings are created entirely from road geometry.
+
+## Algorithm
+
+1. Create offset envelopes around roads.
+2. Union overlapping polygons.
+3. Generate guide segments.
+4. Divide guides into lots.
+5. Remove overlapping buildings.
+6. Create final buildings.
+
+This prevents buildings from intersecting roads or each other.
+
+---
+
+# Tree Generation
+
+Trees are placed using randomized sampling.
+
+Each candidate tree must satisfy three rules.
+
+Reject if:
+
+- Inside a road
+- Inside a building
+- Too close to another tree
+
+This creates a natural-looking environment while keeping roads clear.
+
+---
+
+# Lane Guides
+
+Lane guides are invisible navigation paths.
+
+They are generated from half-width road envelopes.
+
+Future AI vehicles will use these paths for:
+
+- Lane following
+- Path planning
+- Autonomous navigation
+
+---
+
+# Traffic Marking System
+
+One of the biggest architectural improvements is the modular marking system.
+
+Instead of every editor implementing its own logic, all editors inherit from a common base class.
+
+```text
+MarkingEditor
+     │
+     ├── Stop
+     ├── Crossing
+     ├── Parking
+     ├── Light
+     ├── Start
+     ├── Target
+     └── Yield
 ```
 
-This is one of the most important mathematical operations.
+Every editor shares:
 
-Suppose:
+- Mouse handling
+- Road detection
+- Preview rendering
+- Placement logic
 
-Camera moves
+Only the marking creation changes.
 
+This makes adding new editor tools extremely easy.
+
+---
+
+# Toolbar Guide
+
+| Button | Purpose |
+|---------|----------|
+| 🌐 | Road Graph Editor |
+| 🛑 | Stop Sign |
+| ⚠️ | Yield Sign |
+| 🚶 | Crosswalk |
+| 🅿️ | Parking Area |
+| 🚦 | Traffic Light |
+| 🚙 | Vehicle Start Position |
+| 🎯 | Target Destination |
+| 💾 | Save World |
+| 📁 | Load World |
+| 🗑️ | Clear World |
+
+Only one editor is active at a time.
+
+When a new tool is selected, all other editors automatically disable themselves.
+
+---
+
+# Traffic Light Logic
+
+Traffic lights synchronize automatically.
+
+Workflow:
+
+```text
+Find Lights
+     │
+     ▼
+Find Nearby Intersections
+     │
+     ▼
+Group Lights
+     │
+     ▼
+Compute Timing
+     │
+     ▼
+Switch States
 ```
-(+100,+50)
+
+For **N** traffic lights,
+
+<math block value="Cycle=N(G+Y)"/>
+
+where:
+
+- **G** = Green duration
+- **Y** = Yellow duration
+
+This creates coordinated intersections without manually programming every light.
+
+---
+
+# Save & Load System
+
+The entire world is serialized into JSON.
+
+Workflow:
+
+```text
+World Object
+      │
+JSON.stringify()
+      │
+      ▼
+.world File
+      │
+      ▼
+localStorage Backup
 ```
 
-Objects must appear to move opposite.
+Saved data includes:
 
+- Roads
+- Buildings
+- Trees
+- Traffic markings
+- Camera zoom
+- Camera position
+
+The project can be closed and reopened without losing progress.
+
+---
+
+# Mathematical Foundations
+
+This project introduces many concepts used directly in robotics and autonomous driving.
+
+## Graph Theory
+
+Road networks are represented as
+
+<math block value="G=(V,E)"/>
+
+where:
+
+- **V** = vertices (points)
+- **E** = edges (road segments)
+
+This is exactly how navigation algorithms represent maps.
+
+---
+
+## Vector Translation
+
+Moving an object by
+
+<math value="T=(dx,dy)"/>
+
+gives
+
+<math block value="P'=P+T"/>
+
+Camera movement performs the opposite transformation.
+
+---
+
+## Coordinate Transformation
+
+The viewport continuously converts between:
+
+```text
+Screen Coordinates
+        ↓
+World Coordinates
 ```
-(-100,-50)
-```
 
-General transformation equation:
+This same idea appears in:
 
-<math value="P_{camera}=P_{world}-T"/>
-
-where
-
-- <math value="P_{world}"/> = object position
-- <math value="T"/> = camera translation
-
-This same equation appears in:
-
-- Robotics
+- ROS TF
 - SLAM
 - OpenGL
 - MuJoCo
@@ -420,230 +665,60 @@ This same equation appears in:
 
 ---
 
-## 4. Draw the World
+## Dot Product
 
-```javascript
-world.draw(ctx, viewPoint);
-```
+Used for:
 
-The world is rendered from the camera's perspective.
+- nearest road detection
+- projections
+- lane calculations
 
----
+Formula:
 
-## 5. Draw Graph Editor
-
-```javascript
-graphEditor.display();
-```
-
-The editor is drawn last.
-
-Rendering order:
-
-```
-Roads
-Buildings
-Trees
-Editor Points
-Selection
-```
-
-This is called layered rendering.
+<math block value="\\vec u\\cdot\\vec v=u_xv_x+u_yv_y"/>
 
 ---
 
-# Save Function
+## Hashing
 
-```javascript
-save(){
- localStorage.setItem(...)
-}
-```
+The graph generates a numerical fingerprint.
 
-Workflow:
+Instead of comparing every road every frame, one hash comparison determines whether regeneration is necessary.
 
-```
-Graph
- │
-JSON.stringify()
- │
- ▼
-Browser Storage
-```
-
-Closing the browser does not lose the map.
+This significantly improves performance.
 
 ---
 
-# Dispose Function
+# Technologies Used
 
-```javascript
-dispose(){
- graphEditor.dispose();
-}
-```
+- Vanilla JavaScript (ES6)
+- HTML5 Canvas
+- Object-Oriented Programming
+- Computational Geometry
+- Graph Theory
+- Browser APIs
+  - LocalStorage
+  - FileReader
+  - Canvas API
 
-Purpose:
-
-- clear temporary selections
-- remove editor state
-
----
-
-# Mathematical Foundations
-
-## 1. Cartesian Coordinates
-
-Each point has:
-
-<math value="P=(x,y)"/>
-
-Example:
-
-```
-(120,250)
-```
+No external rendering libraries or game engines are used.
 
 ---
 
-## 2. Graph Theory
 
-The road network is a mathematical graph.
+# What this project covers
 
-<math value="G=(V,E)"/>
 
-where
+- Event-driven programming
+- Rendering loops
+- Camera transformations
+- Graph-based road modeling
+- Procedural environment generation
+- Computational geometry
+- Collision-friendly road generation
+- Modular editor architecture
+- Serialization and persistence
+- Real-world software design patterns used in robotics and autonomous driving systems
 
-- <math value="V"/> = vertices (points)
-- <math value="E"/> = edges (segments)
+Although the project looks visually simple, its underlying architecture mirrors many of the foundational ideas used in professional robotics software, simulation engines, and autonomous vehicle research.
 
-Example:
-
-```
-A────B
-     │
-     C
-```
-
-This same representation is used in:
-
-- GPS road maps
-- A* path planning
-- RRT*
-- Navigation meshes
-
----
-
-## 3. Translation
-
-Moving every object by
-
-<math value="T=(dx,dy)"/>
-
-gives
-
-<math value="P'=P+T"/>
-
-Camera movement performs the opposite transformation.
-
----
-
-## 4. Coordinate Transformation
-
-Viewport converts between:
-
-```
-Screen Coordinates
-        ↓
-World Coordinates
-```
-
-Example:
-
-Mouse click:
-
-```
-(420,180)
-```
-
-After camera transformation:
-
-```
-(620,-50)
-```
-
-This conversion is fundamental in robotics frame transformations.
-
----
-
-## 5. Hashing
-
-Hashing converts the graph into a unique numerical fingerprint.
-
-Purpose:
-
-- detect changes
-- avoid unnecessary computation
-
-Instead of comparing every point manually, one hash comparison determines whether regeneration is needed.
-
----
-
-# Why This Matters for Robotics
-
-This project quietly teaches many concepts used in professional robotics software.
-
-| Project | Robotics Equivalent |
-|----------|---------------------|
-| Graph | Road Network |
-| Point | Waypoint |
-| Segment | Road Edge |
-| Viewport | Camera Frame |
-| World | Environment Model |
-| Animation Loop | Control Loop |
-| Hash | Map Change Detection |
-| LocalStorage | Saved Map |
-
-Later topics like:
-
-- ROS2
-- MuJoCo
-- SLAM
-- RRT*
-- A*
-- MPC
-
-all build upon these same mathematical foundations.
-
----
-
-# Current Learning Progress
-
-- [x] HTML Canvas
-- [x] Rendering Loop
-- [x] Local Storage
-- [x] Graph Representation
-- [x] Viewport Transformations
-- [x] World Generation Pipeline
-- [ ] Polygon Operations
-- [ ] Envelope Generation
-- [ ] Road Intersections
-- [ ] Lane Markings
-- [ ] AI Cars
-- [ ] Sensor Simulation
-- [ ] Neural Network Training
-
----
-
-# Key Takeaways
-
-By this stage of the project, the editor already implements several professional software engineering and robotics concepts:
-
-- Event-driven rendering using `requestAnimationFrame`
-- Persistent map storage through JSON serialization
-- Graph-based road representation
-- Camera-based coordinate transformations
-- Efficient world regeneration using hashing
-- Layered rendering architecture
-
-Although the project appears simple visually, its underlying architecture mirrors many of the foundational ideas used in game engines, autonomous vehicles, and robotics simulation environments.
