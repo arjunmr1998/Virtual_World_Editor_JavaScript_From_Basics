@@ -6,7 +6,7 @@
 
 [![Watch Demo](car.png)](Virtual_World_with_markings.mp4)
 
-*Click the image to play the full demo.*
+*Click the image to download the full demo.*
 
 ---
 
@@ -723,4 +723,806 @@ No external rendering libraries or game engines are used.
 - Real-world software design patterns used in robotics and autonomous driving systems
 
 Although the project looks visually simple, its underlying architecture mirrors many of the foundational ideas used in professional robotics software, simulation engines, and autonomous vehicle research.
+
+
+---
+
+# Acknowledgement
+
+A special thanks to **Radu Mariescu-Istodor** for creating the incredible **FreeCodeCamp** tutorial that inspired this project.
+
+I followed the tutorial as a learning resource, but my goal throughout the project was to understand the underlying mathematics, computational geometry, rendering pipeline, and software architecture behind every feature rather than simply reproducing the code. Working through this project helped me build a much stronger intuition for concepts that directly relate to robotics, autonomous driving, and simulation.
+
+📺 **Original Tutorial:** <Link ref_id=https://www.youtube.com/watch?v=5iHejdqYIa8/>
+
+
+
+
+
+---
+
+# 📚 More Info – Code Architecture & Internal Working
+
+This section is a technical deep dive into how the project is structured internally. Rather than treating the editor as a collection of independent files, the project follows a layered architecture where each JavaScript file has a single responsibility. The overall design is similar to robotics software, where perception, mapping, planning, and visualization are separated into independent modules.
+
+---
+
+# High-Level Code Flow
+
+Every frame follows the same pipeline.
+
+```text
+Browser
+   │
+   ▼
+index.html
+   │
+   ▼
+Load World
+   │
+   ▼
+Viewport (Camera)
+   │
+   ▼
+Active Editor
+   │
+   ▼
+Graph Update
+   │
+   ▼
+World Generation
+   │
+   ▼
+Render Loop
+```
+
+Instead of redrawing everything blindly, the editor first checks whether the road graph changed. Only then is the expensive world generation process executed.
+
+---
+
+# File-by-File Breakdown
+
+## `index.html`
+
+This file acts as the **application controller**.
+
+### Responsibilities
+
+- Creates the HTML Canvas.
+- Restores saved worlds.
+- Creates the viewport.
+- Creates every editor tool.
+- Starts the animation loop.
+- Handles Save, Load, and Clear.
+
+### Important Variables
+
+| Variable | Purpose |
+|----------|---------|
+| `world` | Complete environment |
+| `graph` | Mathematical road network |
+| `viewport` | Camera system |
+| `tools` | Stores every editor |
+| `oldGraphHash` | Detects map changes |
+
+### Main Functions
+
+#### `animate()`
+
+Runs continuously at approximately **60 FPS**.
+
+Workflow:
+
+```text
+Reset Camera
+      │
+Hash Check
+      │
+Generate World
+      │
+Draw Roads
+      │
+Draw Buildings
+      │
+Draw Trees
+      │
+Draw Markings
+      │
+Draw Editor Preview
+```
+
+This resembles the update-render loop used in game engines.
+
+---
+
+#### `setMode(mode)`
+
+Switches between editor tools.
+
+Example:
+
+```text
+Graph Editor
+
+↓
+
+Traffic Light Editor
+
+↓
+
+Parking Editor
+```
+
+Only one editor remains active at any time.
+
+---
+
+#### `save()`
+
+Exports the complete world.
+
+```text
+World Object
+      │
+JSON.stringify()
+      │
+      ▼
+.world File
+```
+
+The world is also backed up inside browser LocalStorage.
+
+---
+
+#### `load()`
+
+Restores a previously exported world.
+
+Workflow:
+
+```text
+.world File
+
+↓
+
+JSON.parse()
+
+↓
+
+World.load()
+```
+
+---
+
+## `viewport.js`
+
+The viewport behaves like a virtual camera.
+
+Instead of moving every road individually, the camera transforms the coordinate system.
+
+### Main Responsibilities
+
+- Pan
+- Zoom
+- Mouse coordinate conversion
+- Camera transformations
+
+### Important Functions
+
+#### `getMouse()`
+
+Converts
+
+```text
+Screen Coordinates
+
+↓
+
+World Coordinates
+```
+
+Without this conversion, clicking would become inaccurate after zooming.
+
+---
+
+#### `reset()`
+
+Resets canvas transformations every frame.
+
+Without resetting:
+
+```text
+Frame 1
+
+translate(10)
+
+Frame 2
+
+translate(10)
+
+Total = 20
+```
+
+Eventually every object would disappear.
+
+---
+
+# Mathematical Foundation
+
+Camera transformation:
+
+<math block value="P_{screen}=P_{world}-T"/>
+
+where
+
+- <math value="T"/> = camera movement
+
+This is identical to OpenGL and ROS coordinate transformations.
+
+---
+
+## `graph.js`
+
+The graph is the mathematical backbone of the editor.
+
+Instead of storing roads as images, roads become a graph.
+
+<math block value="G=(V,E)"/>
+
+where
+
+- <math value="V"/> = Points
+- <math value="E"/> = Segments
+
+### Internal Structure
+
+```text
+Graph
+
+├── points[]
+└── segments[]
+```
+
+### Major Functions
+
+#### `tryAddPoint()`
+
+Adds a new point while preventing duplicates.
+
+#### `tryAddSegment()`
+
+Creates a road between two points.
+
+#### `removePoint()`
+
+Deletes a point and every connected road.
+
+#### `removeSegment()`
+
+Deletes one road.
+
+#### `dispose()`
+
+Clears the entire graph.
+
+#### `hash()`
+
+Generates a fingerprint of the graph.
+
+Instead of comparing every point every frame, one hash comparison detects changes.
+
+---
+
+## `world.js`
+
+This is the procedural world generation engine.
+
+Input:
+
+```text
+Graph
+```
+
+Output:
+
+```text
+Roads
+Buildings
+Trees
+Lane Guides
+Road Borders
+Traffic Lights
+```
+
+This file contains the largest amount of computational geometry.
+
+---
+
+### `generate()`
+
+The master generation function.
+
+Workflow:
+
+```text
+Graph
+
+↓
+
+Road Envelopes
+
+↓
+
+Polygon Union
+
+↓
+
+Road Borders
+
+↓
+
+Buildings
+
+↓
+
+Trees
+
+↓
+
+Lane Guides
+```
+
+---
+
+### `#generateLaneGuides()`
+
+Creates invisible center paths.
+
+These will later become navigation lanes for AI vehicles.
+
+---
+
+### `#generateBuildings()`
+
+One of the most interesting algorithms.
+
+Workflow:
+
+1. Expand roads.
+2. Create guide polygons.
+3. Split guides into lots.
+4. Remove overlaps.
+5. Create buildings.
+
+Conceptually:
+
+```text
+Road
+
+██████████
+
+↓
+
+Building Lots
+
+[] [] []
+
+↓
+
+Buildings
+```
+
+---
+
+### `#generateTrees()`
+
+Uses randomized sampling.
+
+Every candidate tree is tested.
+
+Reject if:
+
+- Inside roads
+- Inside buildings
+- Too close to another tree
+
+This creates realistic vegetation without manual placement.
+
+---
+
+### `#updateLights()`
+
+Synchronizes traffic lights.
+
+Workflow:
+
+```text
+Find Lights
+
+↓
+
+Find Intersections
+
+↓
+
+Group Lights
+
+↓
+
+Cycle States
+```
+
+For
+
+<math value="N"/> lights,
+
+cycle duration becomes
+
+<math block value="Cycle=N(G+Y)"/>
+
+where
+
+- <math value="G"/> = green duration
+- <math value="Y"/> = yellow duration
+
+---
+
+### `draw()`
+
+Responsible for layered rendering.
+
+Rendering order:
+
+1. Roads
+2. Markings
+3. Road Borders
+4. Buildings
+5. Trees
+
+Sorting buildings and trees by camera distance creates a pseudo-3D depth effect.
+
+---
+
+# Primitive Geometry Classes
+
+These files form the mathematical foundation of the editor.
+
+---
+
+## `point.js`
+
+Represents
+
+<math value="(x,y)"/>
+
+Every object in the editor ultimately depends on points.
+
+Used by:
+
+- Roads
+- Buildings
+- Trees
+- Traffic Lights
+
+---
+
+## `segment.js`
+
+Represents one road.
+
+### Important Functions
+
+#### `length()`
+
+Computes
+
+<math block value="\\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}"/>
+
+#### `directionVector()`
+
+Returns the unit direction vector.
+
+#### `distanceToPoint()`
+
+Finds the shortest distance between a point and a road.
+
+This function is heavily used for snapping editor tools.
+
+---
+
+## `polygon.js`
+
+One of the most powerful files.
+
+Handles:
+
+- Polygon unions
+- Intersections
+- Containment
+- Distance calculations
+
+This is the computational geometry engine behind roads and buildings.
+
+---
+
+## `envelope.js`
+
+Transforms a simple line into a road.
+
+Input:
+
+```text
+A────────B
+```
+
+Output:
+
+```text
+██████████
+```
+
+Rounded ends are generated automatically.
+
+---
+
+# Editor System
+
+All marking editors inherit from a common base class.
+
+```text
+MarkingEditor
+
+├── Stop
+├── Crossing
+├── Parking
+├── Light
+├── Start
+├── Target
+└── Yield
+```
+
+Instead of duplicating mouse logic, each editor only changes what gets created.
+
+---
+
+## `markingEditor.js`
+
+Shared functionality includes:
+
+- Mouse tracking
+- Road snapping
+- Preview rendering
+- Placement logic
+
+This follows object-oriented inheritance.
+
+---
+
+## Individual Editors
+
+### `graphEditor.js`
+
+Creates roads.
+
+### `stopEditor.js`
+
+Places stop signs.
+
+### `crossingEditor.js`
+
+Places pedestrian crossings.
+
+### `parkingEditor.js`
+
+Creates parking zones.
+
+### `lightEditor.js`
+
+Creates traffic lights.
+
+### `startEditor.js`
+
+Places vehicle spawn points.
+
+### `targetEditor.js`
+
+Places destination markers.
+
+### `yieldEditor.js`
+
+Places yield signs.
+
+---
+
+# Marking Classes
+
+Each editor creates one marking object.
+
+| Class | Purpose |
+|---------|----------|
+| `Stop` | Stop line |
+| `Crossing` | Zebra crossing |
+| `Parking` | Parking area |
+| `Light` | Traffic signal |
+| `Start` | Vehicle spawn |
+| `Target` | Destination |
+| `Yield` | Yield marking |
+
+Every marking contains:
+
+- Position
+- Direction
+- Width
+- Height
+- Draw function
+
+This separation keeps rendering independent from editing.
+
+---
+
+# Utility Functions (`utils.js`)
+
+These small mathematical functions are used everywhere.
+
+### `distance()`
+
+Euclidean distance.
+
+<math block value="\\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}"/>
+
+---
+
+### `lerp()`
+
+Linear interpolation.
+
+<math block value="L(a,b,t)=a+t(b-a)"/>
+
+Used for smooth positioning.
+
+---
+
+### `scale()`
+
+Multiplies vectors.
+
+Example:
+
+```text
+(3,4)
+
+↓
+
+×2
+
+↓
+
+(6,8)
+```
+
+---
+
+### `add()`
+
+Vector addition.
+
+<math block value="(x_1+x_2,y_1+y_2)"/>
+
+---
+
+### `normalize()`
+
+Converts any vector into a unit vector.
+
+This is essential for road direction calculations.
+
+---
+
+### `getNearestPoint()`
+
+Finds the closest graph point.
+
+Used for snapping traffic lights and intersections.
+
+---
+
+### `getNearestSegment()`
+
+One of the most frequently used functions.
+
+Workflow:
+
+```text
+Mouse
+
+↓
+
+Distance to Every Segment
+
+↓
+
+Choose Minimum
+
+↓
+
+Snap Tool
+```
+
+This gives the editor a CAD-like snapping behavior.
+
+---
+
+# Mathematical Concepts Used
+
+This project quietly teaches many concepts used in robotics.
+
+## Graph Theory
+
+Road network:
+
+<math block value="G=(V,E)"/>
+
+Used in:
+
+- GPS
+- A*
+- RRT*
+
+---
+
+## Euclidean Distance
+
+<math block value="\\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}"/>
+
+Used for snapping.
+
+---
+
+## Linear Interpolation
+
+<math block value="L(a,b,t)=a+t(b-a)"/>
+
+Used for smooth positioning.
+
+---
+
+## Vector Normalization
+
+Converts vectors into unit direction vectors.
+
+Essential for:
+
+- Road generation
+- Lane guides
+- Traffic markings
+
+---
+
+## Coordinate Frames
+
+The viewport continuously transforms
+
+```text
+Screen Coordinates
+
+↓
+
+World Coordinates
+```
+
+This is the same concept used by:
+
+- ROS TF
+- SLAM
+- MuJoCo
+- Computer Vision
+
+---
+
+
+---
+
+
+
+
 
