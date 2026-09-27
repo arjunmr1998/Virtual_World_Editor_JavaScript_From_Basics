@@ -2,9 +2,11 @@
 
 > Building a complete 2D world editor from scratch using **HTML5 Canvas** and **Vanilla JavaScript**  no game engine, no rendering libraries.
 
-<video src="Virtual_World_with_markings.mp4" controls width="800">
-  Your browser does not support the video tag.
-</video>
+## 🎥 Demo
+
+[![Watch Demo](demo_thumbnail.png)](Virtual_World_with_markings.mp4)
+
+*Click the image to play the full demo.*
 
 ---
 
