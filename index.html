@@ -25,6 +25,9 @@
             <button id = "graphBtn" onclick="setMode('graph')">🌐</button>
             <button id = "stopBtn" onclick="setMode('stop')">🛑</button>
 
+            <button id = "crossingBtn" onclick="setMode('crossing')">🚶</button>
+
+
 
 
 
@@ -41,10 +44,14 @@
 
         <script src="js/viewport.js"></script>
         <script src="js/markings/stop.js"></script>
+        <script src="js/markings/crossing.js"></script>
+
 
 
         <script src="js/editors/graphEditor.js"></script>
+        <script src="js/editors/crossingEditor.js"></script>
         <script src="js/editors/stopEditor.js"></script>
+
 
 
 
@@ -139,6 +146,8 @@
 
             const graphEditor = new GraphEditor(viewport , graph);
             const stopEditor = new StopEditor(viewport , world);
+            const crossingEditor = new CrossingEditor(viewport , world);
+
 
 
             //graph.draw(ctx);
@@ -164,6 +173,8 @@
                 ctx.globalAlpha = 0.3;
                 graphEditor.display();
                 stopEditor.display();
+                crossingEditor.display();
+
 
 
                // new Polygon(graph.points).draw(ctx);
@@ -188,19 +199,16 @@
                         graphBtn.style.backgroundColor = "white";
                         graphBtn.style.filter = "";
                         graphEditor.enable();
-
-
                         break;
                     case "stop":
                         stopBtn.style.backgroundColor = "white";
                         stopBtn.style.filter = "";
                         stopEditor.enable();
-
-
-
-
-
-
+                        break;
+                    case "crossing":
+                        crossingBtn.style.backgroundColor = "white";
+                        crossingBtn.style.filter = "";
+                        crossingEditor.enable();
                         break;
 
 
@@ -220,6 +228,11 @@
                 stopBtn.style.backgroundColor = "gray";
                 stopBtn.style.filter = "grayscale(100%)";
                 stopEditor.disable();
+
+
+                crossingBtn.style.backgroundColor = "gray";
+                crossingBtn.style.filter = "grayscale(100%)";
+                crossingEditor.disable();
 
             }
 
